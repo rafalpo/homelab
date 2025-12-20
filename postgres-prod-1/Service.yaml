@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: postgres-prod-1
+  labels:
+    app: postgres
+  annotations:
+    metallb.io/loadBalancer-ips: "10.10.255.102"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - port: 5432
+      targetPort: database
+      protocol: TCP
+  selector:
+    app: postgres
