@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: postgres-prod-1
+  labels:
+    app: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  serviceName: "postgres"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "postgres-role"
+        vault.hashicorp.com/agent-inject-secret-POSTGRES: "secret/data/postgres/prod-1"
+        vault.hashicorp.com/agent-inject-template-POSTGRES: |
+          {{- with secret "secret/data/postgres/prod-1" -}}
+          export POSTGRES_USER="{{ .Data.data.POSTGRES_USER }}"
+          export POSTGRES_PASSWORD="{{ .Data.data.POSTGRES_PASSWORD }}"
+          export REPLICATION_USER="{{ .Data.data.REPLICATION_USER }}"
+          export REPLICATION_PASSWORD="{{ .Data.data.REPLICATION_PASSWORD }}"
+          export POSTGRES_DB="{{ .Data.data.POSTGRES_DB }}"
+          {{- end }}
+    spec:
+      terminationGracePeriodSeconds: 30
+      initContainers:
+        - name: init
+          image: postgres:15
+          command: [ "bash", "-c" ]
+          args:
+            - |
+              #create archive directory
+              mkdir -p /data/archive && chown -R 999:999 /data/archive
+      containers:
+        - name: postgres
+          image: postgres:15
+          command:
+            - "/bin/bash"
+            - "-c"
+          args:
+            - |
+              source /vault/secrets/POSTGRES
+              exec docker-entrypoint.sh postgres -c config_file=/config/postgresql.conf
+          ports:
+            - containerPort: 5432
+              name: database
+          env:
+            - name: PGDATA
+              value: "/data/pgdata"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: postgres-pvc
+              mountPath: /data
+              readOnly: false
+      volumes:
+        - name: config
+          configMap:
+            name: postgres-config
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-pvc
+        namespace: postgres-prod-1
+        labels:
+          app: postgres
+      spec:
+        storageClassName: nas-storage
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
