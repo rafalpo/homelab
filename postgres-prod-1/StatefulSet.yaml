@@ -31,6 +31,17 @@ spec:
     spec:
       terminationGracePeriodSeconds: 30
       serviceAccountName: postgres-sa
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-master
+                      - k8s-node1
+                      - k8s-node2
       initContainers:
         - name: init
           image: postgres:15
