@@ -30,6 +30,7 @@ spec:
           {{- end }}
     spec:
       terminationGracePeriodSeconds: 30
+      serviceAccountName: postgres-sa
       initContainers:
         - name: init
           image: postgres:15
