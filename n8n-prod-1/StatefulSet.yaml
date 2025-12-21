@@ -32,6 +32,17 @@ spec:
           {{- end }}
     spec:
       serviceAccountName: n8n-sa
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-master
+                      - k8s-node1
+                      - k8s-node2
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
