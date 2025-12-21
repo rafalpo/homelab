@@ -7,8 +7,8 @@ resources:
   - Ingress.yaml
 patches:
   - target:
-    kind: ConfigMap
-    name: argocd-cmd-params-cm
+      kind: ConfigMap
+      name: argocd-cmd-params-cm
     patch: |
       apiVersion: v1
       kind: ConfigMap
@@ -17,8 +17,8 @@ patches:
       data:
         server.insecure: "true"
   - target:
-    kind: Deployment
-    name: argocd-server
+      kind: Deployment
+      name: argocd-server
     patch: |
       apiVersion: apps/v1
       kind: Deployment
