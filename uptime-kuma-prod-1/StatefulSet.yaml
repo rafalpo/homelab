@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: uptime-kuma-prod-1
+  namespace: uptime-kuma-prod-1
+  labels:
+    app: uptime-kuma
+spec:
+  selector:
+    matchLabels:
+      app: uptime-kuma
+  replicas: 1
+  serviceName: "uptime-kuma"
+  template:
+    metadata:
+      labels:
+        app: uptime-kuma
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-master
+                      - k8s-node1
+                      - k8s-node2
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: uptime-kuma
+        image: louislam/uptime-kuma:2
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - NET_RAW
+        ports:
+        - containerPort: 3001
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - name: uptime-kuma-pvc
+          mountPath: /app/data
+  volumeClaimTemplates:
+  - metadata:
+      name: uptime-kuma-pvc
+      namespace: uptime-kuma-prod-1
+      labels:
+        app: uptime-kuma
+    spec:
+      storageClassName: nas-storage
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 512Mi
