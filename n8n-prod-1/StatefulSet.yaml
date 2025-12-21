@@ -1,0 +1,133 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: n8n
+  namespace: n8n-prod-1
+  labels:
+    app: n8n
+spec:
+  selector:
+    matchLabels:
+      app: n8n
+  serviceName: n8n
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: n8n
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "n8n-prod-1-role"
+        vault.hashicorp.com/agent-inject-secret-N8N: "secret/data/n8n/prod-1"
+        vault.hashicorp.com/agent-run-as-user: "1000"
+        vault.hashicorp.com/agent-inject-template-N8N: |
+          {{- with secret "secret/data/n8n/prod-1" -}}
+          export DB_POSTGRESDB_DATABASE="{{ .Data.data.DB_POSTGRESDB_DATABASE }}"
+          export DB_POSTGRESDB_HOST="{{ .Data.data.DB_POSTGRESDB_HOST }}"
+          export DB_POSTGRESDB_PORT="{{ .Data.data.DB_POSTGRESDB_PORT }}"
+          export DB_POSTGRESDB_USER="{{ .Data.data.DB_POSTGRESDB_USER }}"
+          export DB_POSTGRESDB_PASSWORD="{{ .Data.data.DB_POSTGRESDB_PASSWORD }}"
+          export N8N_ENCRYPTION_KEY="{{ .Data.data.N8N_ENCRYPTION_KEY }}"
+          export N8N_LICENSE_ACTIVATION_KEY="{{ .Data.data.N8N_LICENSE_ACTIVATION_KEY }}"
+          {{- end }}
+    spec:
+      serviceAccountName: n8n-sa
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-master
+                      - k8s-node1
+                      - k8s-node2
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      initContainers:
+        - name: set-volume-permissions
+          image: busybox:latest
+          command: ["sh", "-c", "chown -R 1000:1000 /home/node/.n8n"]
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: n8n-pvc
+              mountPath: /home/node/.n8n
+              readOnly: false
+      containers:
+        - name: n8n
+          image: n8nio/n8n:1.120.0
+          command:
+            - "/bin/sh"
+            - "-c"
+          args:
+            - |
+              source /vault/secrets/n8n
+              exec docker-entrypoint.sh n8n
+          ports:
+            - containerPort: 5678
+              name: n8n
+          env:
+            - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+              value: "true"
+            - name: N8N_EDITOR_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: n8n-config
+                  key: N8N_EDITOR_BASE_URL
+            - name: WEBHOOK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: n8n-config
+                  key: WEBHOOK_URL
+            - name: N8N_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: n8n-config
+                  key: N8N_HOST
+            - name: N8N_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: n8n-config
+                  key: N8N_PORT
+            - name: N8N_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: n8n-config
+                  key: N8N_PROTOCOL
+            - name: GENERIC_TIMEZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: n8n-config
+                  key: GENERIC_TIMEZONE
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: n8n-config
+                  key: TZ
+            - name: DB_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: n8n-config
+                  key: DB_TYPE
+          volumeMounts:
+            - name: n8n-pvc
+              mountPath: /home/node/.n8n
+              readOnly: false
+  volumeClaimTemplates:
+    - metadata:
+        name: n8n-pvc
+        namespace: n8n-prod-1
+        labels:
+          app: n8n
+      spec:
+        storageClassName: nas-storage
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Mi
