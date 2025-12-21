@@ -68,15 +68,15 @@ spec:
             - |
               # Wait up to 30 seconds for the secret file to appear
               for i in $(seq 1 30); do
-                if [ -f /vault/secrets/N8N ]; then
+                if [ -f /vault/secrets/n8n ]; then
                   break
                 fi
                 echo "Waiting for Vault secrets..."
                 sleep 1
               done
 
-              if [ -f /vault/secrets/N8N ]; then
-                source /vault/secrets/N8N
+              if [ -f /vault/secrets/n8n ]; then
+                source /vault/secrets/n8n
                 exec docker-entrypoint.sh n8n
               else
                 echo "Error: Vault secret file not found after waiting"
