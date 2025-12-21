@@ -20,6 +20,7 @@ spec:
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/role: "n8n-prod-1-role"
         vault.hashicorp.com/agent-inject-secret-N8N: "secret/data/n8n/prod-1"
+        vault.hashicorp.com/agent-run-as-user: "1000"
         vault.hashicorp.com/agent-inject-template-N8N: |
           {{- with secret "secret/data/n8n/prod-1" -}}
           export DB_POSTGRESDB_DATABASE="{{ .Data.data.DB_POSTGRESDB_DATABASE }}"
@@ -65,8 +66,22 @@ spec:
             - "-c"
           args:
             - |
-              source /vault/secrets/N8N
-              exec docker-entrypoint.sh n8n
+              # Wait up to 30 seconds for the secret file to appear
+              for i in $(seq 1 30); do
+                if [ -f /vault/secrets/N8N ]; then
+                  break
+                fi
+                echo "Waiting for Vault secrets..."
+                sleep 1
+              done
+
+              if [ -f /vault/secrets/N8N ]; then
+                source /vault/secrets/N8N
+                exec docker-entrypoint.sh n8n
+              else
+                echo "Error: Vault secret file not found after waiting"
+                exit 1
+              fi
           ports:
             - containerPort: 5678
               name: n8n
