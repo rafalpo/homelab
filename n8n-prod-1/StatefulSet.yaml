@@ -66,22 +66,8 @@ spec:
             - "-c"
           args:
             - |
-              # Wait up to 30 seconds for the secret file to appear
-              for i in $(seq 1 30); do
-                if [ -f /vault/secrets/n8n ]; then
-                  break
-                fi
-                echo "Waiting for Vault secrets..."
-                sleep 1
-              done
-
-              if [ -f /vault/secrets/n8n ]; then
-                source /vault/secrets/n8n
-                exec docker-entrypoint.sh n8n
-              else
-                echo "Error: Vault secret file not found after waiting"
-                exit 1
-              fi
+              source /vault/secrets/n8n
+              exec docker-entrypoint.sh n8n
           ports:
             - containerPort: 5678
               name: n8n
