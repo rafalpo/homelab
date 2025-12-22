@@ -1,0 +1,19 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: bind9-prod-1-monitor
+  namespace: bind9-prod-1
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: bind9
+  namespaceSelector:
+    matchNames:
+      - bind9-prod-1
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
