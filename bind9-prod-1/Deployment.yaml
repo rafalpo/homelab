@@ -1,0 +1,111 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bind9-prod-1
+  namespace: bind9-prod-1
+  labels:
+    app: bind9
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bind9
+  template:
+    metadata:
+      labels:
+        app: bind9
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/template-static-secret-render-interval: "45s"
+        vault.hashicorp.com/agent-run-as-user: "105"
+        vault.hashicorp.com/role: "bind9-prod-1-role"
+        vault.hashicorp.com/agent-inject-secret-named.conf: "secret/data/bind9/prod-1"
+        vault.hashicorp.com/agent-inject-template-named.conf: |
+          {{- with secret "secret/data/bind9/prod-1" -}}
+          {{ index .Data.data "named.conf" }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-secret-my-zone.zone: "secret/data/bind9/prod-1"
+        vault.hashicorp.com/agent-inject-template-my-zone.zone: |
+          {{- with secret "secret/data/bind9/prod-1" -}}
+          {{ index .Data.data "my-zone.zone" }}
+          {{- end -}}
+    spec:
+      shareProcessNamespace: true
+      serviceAccountName: bind9-sa
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-master
+                      - k8s-node1
+                      - k8s-node2
+      containers:
+      - name: bind9
+        image: ubuntu/bind9:9.20-25.04_edge
+        args:
+          - "-g"
+          - "-u"
+          - "bind"
+          - "-c"
+          - "/vault/secrets/named.conf"
+        ports:
+        - containerPort: 53
+          name: dns-udp
+          protocol: UDP
+        - containerPort: 53
+          name: dns-tcp
+          protocol: TCP
+        - containerPort: 8053
+          name: metrics-xml
+          protocol: TCP
+        env:
+        - name: TZ
+          value: "Europe/Warsaw"
+        - name: BIND9_USER
+          value: "bind"
+        volumeMounts:
+        - name: bind9-cache
+          mountPath: /var/cache/bind
+        livenessProbe:
+          tcpSocket:
+            port: dns-tcp
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: dns-tcp
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+      - name: bind-exporter
+        image: prometheuscommunity/bind-exporter:v0.8.0
+        ports:
+        - containerPort: 9119
+          name: metrics
+          protocol: TCP
+        env:
+        - name: BIND_STATS_URL
+          value: "http://localhost:8053"
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          initialDelaySeconds: 5
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          initialDelaySeconds: 5
+          periodSeconds: 15
+      volumes:
+      - name: bind9-cache
+        emptyDir: {}
