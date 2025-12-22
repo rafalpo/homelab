@@ -7,6 +7,17 @@ resources:
   - Ingress.yaml
 patches:
   - target:
+      kind: Secret
+      name: argocd-secret
+    patch: |
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: argocd-secret
+        annotations:
+          argocd.argoproj.io/compare-options: IgnoreExtraneous
+          argocd.argoproj.io/sync-options: Prune=false
+  - target:
       kind: ClusterRoleBinding
       name: argocd-application-controller
     patch: |
