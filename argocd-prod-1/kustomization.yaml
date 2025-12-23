@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: argocd-prod-1
 resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/v3.2.1/manifests/install.yaml
+  - app/
   - Ingress.yaml
 patches:
   - target:
