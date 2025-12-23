@@ -7,5 +7,6 @@ resources:
   - bind9-prod-1.yaml
   - n8n-prod-1.yaml
   - postgres-prod-1.yaml
+  - storage.yaml
   - uptime-kuma-prod-1.yaml
   - vault-prod-1.yaml
