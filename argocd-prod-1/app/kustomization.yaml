@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: argocd-prod-1
 resources:
   - bind9-prod-1.yaml
+  - metabase-prod-1.yaml
   - n8n-prod-1.yaml
   - postgres-prod-1.yaml
   - storage.yaml
