@@ -1,0 +1,9 @@
+---
+apiVersion: v2
+name: eso-prod-1
+type: application
+version: 1.0.0
+dependencies:
+  - name: external-secrets
+    version: 1.2.0
+    repository: https://charts.external-secrets.io
