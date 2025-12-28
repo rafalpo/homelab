@@ -9,36 +9,6 @@ server:
   ingress:
     enabled: false
 
-repoServer:
-  extraContainers:
-    - name: avp-helm
-      command: [/var/run/argocd/argocd-cmp-server]
-      image: registry.k8s.io/kube-utils/pause:3.8
-      imagePullPolicy: IfNotPresent
-      volumeMounts:
-        - mountPath: /var/run/argocd
-          name: var-files
-        - mountPath: /home/argocd/cmp-server/plugins
-          name: plugins
-        - mountPath: /home/argocd/cmp-server/config/plugin.yaml
-          subPath: avp-helm.yaml
-          name: argocd-cmp-cm
-  volumes:
-    - name: argocd-cmp-cm
-      configMap:
-        name: argocd-cmp-cm
-  initContainers:
-    - name: download-tools
-      image: alpine:3
-      command: [sh, -c]
-      args:
-        - >-
-          wget -O /custom-tools/argocd-vault-plugin https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v1.17.0/argocd-vault-plugin_1.17.0_linux_amd64 &&
-          chmod +x /custom-tools/argocd-vault-plugin
-      volumeMounts:
-        - mountPath: /custom-tools
-          name: custom-tools
-
 rbac:
   create: true
 
@@ -58,13 +28,13 @@ extraObjects:
           match: Host(`argocd.prod-1.dev-software.pl`)
           priority: 10
           services:
-            - name: argocd-server
+            - name: argocd-prod-1-server
               port: 80
         - kind: Rule
           match: Host(`argocd.prod-1.dev-software.pl`) && Header(`Content-Type`, `application/grpc`)
           priority: 11
           services:
-            - name: argocd-server
+            - name: argocd-prod-1-server
               port: 80
               scheme: h2c
       tls:

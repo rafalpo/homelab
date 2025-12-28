@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/rafalpo/homelab.git
     targetRevision: master
-    path: apps/         # Ścieżka do folderu z Twoimi manifestami Application
+    path: apps/
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd-prod-1
