@@ -9,14 +9,14 @@ spec:
   source:
     repoURL: https://argoproj.github.io/argo-helm
     chart: argo-cd
-    targetRevision: 9.1.8
+    targetRevision: 9.2.3
     helm:
       valueFiles:
         - $values/argocd-prod-1/values.yaml
   sources:
     - repoURL: https://argoproj.github.io/argo-helm
       chart: argo-cd
-      targetRevision: 9.1.8
+      targetRevision: 9.2.3
       helm:
         valueFiles:
           - $values/argocd-prod-1/values.yaml
@@ -29,7 +29,5 @@ spec:
   syncPolicy:
     automated:
       enabled: true
-      prune: false
-      selfHeal: false
     syncOptions:
       - CreateNamespace=true
