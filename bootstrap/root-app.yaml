@@ -2,21 +2,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd-prod-1
+  name: root-app
   namespace: argocd-prod-1
 spec:
   project: default
   source:
     repoURL: https://github.com/rafalpo/homelab.git
     targetRevision: master
-    path: argocd-prod-1
+    path: apps/         # Ścieżka do folderu z Twoimi manifestami Application
   destination:
+    server: https://kubernetes.default.svc
     namespace: argocd-prod-1
-    server: 'https://kubernetes.default.svc'
   syncPolicy:
     automated:
-      enabled: true
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
