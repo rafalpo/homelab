@@ -136,7 +136,7 @@ extraObjects:
     kind: Secret
     metadata:
       name: "argocd-repo-server-secret"
-      namespace: argocd-test-1
+      namespace: argocd-prod-1
       annotations:
         kubernetes.io/service-account.name: argocd-repo-server
     type: kubernetes.io/service-account-token
@@ -148,7 +148,7 @@ extraObjects:
     subjects:
       - kind: ServiceAccount
         name: argocd-repo-server
-        namespace: argocd-test-1
+        namespace: argocd-prod-1
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: ClusterRole
@@ -158,14 +158,14 @@ extraObjects:
     kind: ConfigMap
     metadata:
       name: cmp-plugin
-      namespace: argocd-test-1
+      namespace: argocd-prod-1
     data:
       avp.yaml: |
         apiVersion: argoproj.io/v1alpha1
         kind: ConfigManagementPlugin
         metadata:
           name: argocd-vault-plugin
-          namespace: argocd-test-1
+          namespace: argocd-prod-1
         spec:
           allowConcurrency: true
           discover:
