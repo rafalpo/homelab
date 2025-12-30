@@ -2,18 +2,16 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: cert-manager-prod-1-dev-software-prod-certificate
+  name: prod-1-dev-software-pl-wildcard
   namespace: cert-manager-prod-1
   annotations:
     argocd.argoproj.io/sync-wave: "10"
     avp.kubernetes.io/path: "secret/data/cert-manager/prod-1"
 spec:
-  secretName: cert-manager-prod-1-dev-software-prod-secret
+  secretName: prod-1-dev-software-prod-tls
   issuerRef:
     name: cert-manager-prod-1-letsencrypt-prod-issuer
     kind: Issuer
   commonName: "*.prod-1.dev-software.pl"
   dnsNames:
-    - "dev-software.pl"
-    - "*.dev-software.pl"
     - "*.prod-1.dev-software.pl"
