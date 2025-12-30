@@ -185,6 +185,7 @@ extraObjects:
         kind: ConfigManagementPlugin
         metadata:
           name: argocd-vault-plugin-helm
+          namespace: argocd-prod-1
         spec:
           allowConcurrency: true
           discover:
@@ -198,6 +199,8 @@ extraObjects:
               - sh
               - "-c"
               - |
-                helm template $ARGOCD_APP_NAME --include-crds . |
-                argocd-vault-plugin generate -
+                helm dependency build . > /dev/null 2>&1 && \
+                helm template $ARGOCD_APP_NAME . \
+                  --namespace $ARGOCD_APP_NAMESPACE \
+                  --include-crds | argocd-vault-plugin generate -
           lockRepo: false
