@@ -1,0 +1,117 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+additionalArguments:
+  - "--serversTransport.insecureSkipVerify=true"
+  - "--log.level=INFO"
+
+deployment:
+  enabled: true
+  replicas: 2
+  # annotations: {}
+  podAnnotations: {}
+  additionalContainers: []
+  initContainers: []
+
+ports:
+  web:
+    redirections:
+      entryPoint:
+        to: websecure
+        scheme: https
+        permanent: true
+  websecure:
+    tls:
+      enabled: true
+  metrics:
+    port: 9100
+    exposedPort: 9100
+
+ingressRoute:
+  dashboard:
+    enabled: false
+
+providers:
+  kubernetesCRD:
+    enabled: true
+    ingressClass: traefik-external
+  kubernetesIngress:
+    enabled: true
+    publishedService:
+      enabled: false
+
+rbac:
+  enabled: true
+
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations: {}
+  labels: {}
+  spec:
+    loadBalancerIP: "10.10.255.100"
+  loadBalancerSourceRanges: []
+  externalIPs: []
+
+metrics:
+  prometheus:
+    service:
+      enabled: true
+      labels:
+        release: kube-prometheus-stack
+
+extraObjects:
+  - apiVersion: traefik.io/v1alpha1
+    kind: IngressRoute
+    metadata:
+      name: traefik-dashboard-ingress
+      namespace: traefik-prod-1
+      annotations:
+        kubernetes.io/ingress.class: traefik-external
+    spec:
+      entryPoints:
+        - websecure
+      routes:
+        - match: Host(`traefik.prod-1.dev-software.pl`)
+          kind: Rule
+          services:
+            - name: api@internal
+              kind: TraefikService
+      tls:
+        secretName: cert-manager-prod-1-dev-software-prod-secret
+
+  - apiVersion: traefik.io/v1alpha1
+    kind: Middleware
+    metadata:
+      name: traefik-default-headers
+      namespace: traefik-prod-1
+    spec:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+  - apiVersion: monitoring.coreos.com/v1
+    kind: ServiceMonitor
+    metadata:
+      name: traefik-service-monitor
+      namespace: traefik-prod-1
+      labels:
+        release: kube-prometheus-stack
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: traefik
+      namespaceSelector:
+        matchNames:
+          - traefik-prod-1
+      endpoints:
+        - port: metrics
+          interval: 30s

@@ -1,0 +1,33 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik-prod-1
+  namespace: argocd-prod-1
+spec:
+  project: default
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    targetRevision: 37.3.0
+    helm:
+      valueFiles:
+        - $values/traefik-prod-1/values.yaml
+  sources:
+    - repoURL: https://traefik.github.io/charts
+      chart: traefik
+      targetRevision: 37.3.0
+      helm:
+        valueFiles:
+          - $values/traefik-prod-1/values.yaml
+    - repoURL: https://github.com/rafalpo/homelab.git
+      targetRevision: master
+      ref: values
+  destination:
+    namespace: traefik-prod-1
+    server: 'https://kubernetes.default.svc'
+  syncPolicy:
+    automated:
+      enabled: true
+    syncOptions:
+      - CreateNamespace=true
