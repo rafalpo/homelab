@@ -79,7 +79,7 @@ extraObjects:
             - name: api@internal
               kind: TraefikService
       tls:
-        secretName: cert-manager-prod-1-dev-software-prod-secret
+        secretName: prod-1-dev-software-prod-tls
 
   - apiVersion: traefik.io/v1alpha1
     kind: Middleware
