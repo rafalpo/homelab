@@ -10,7 +10,7 @@ metadata:
 spec:
   secretName: prod-1-dev-software-prod-tls
   issuerRef:
-    name: cert-manager-prod-1-letsencrypt-prod-issuer
+    name: cert-manager-prod-1-zerossl-issuer
     kind: Issuer
   commonName: "*.prod-1.dev-software.pl"
   dnsNames:
