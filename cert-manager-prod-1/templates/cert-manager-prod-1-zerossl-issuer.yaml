@@ -1,0 +1,34 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: cert-manager-prod-1-zerossl-issuer
+  namespace: cert-manager-prod-1
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    avp.kubernetes.io/path: "secret/data/cert-manager/prod-1"
+spec:
+  acme:
+    server: https://acme.zerossl.com/v2/DV90
+    email: "<ZEROSSL_EMAIL>"
+    privateKeySecretRef:
+      name: cert-manager-prod-1-zerossl-issuer
+    externalAccountBinding:
+      keyID: "<ZEROSSL_KEY_ID>"
+      keySecretRef:
+        name: cert-manager-prod-1-zerossl-eab-secret
+        key: ZEROSSL_HMAC_KEY
+      keyAlgorithm: HS256
+    solvers:
+    - dns01:
+        cloudflare:
+          email: "<CF_EMAIL>"
+          apiTokenSecretRef:
+            name: cert-manager-prod-1-cloudflare-token-secret
+            key: CF_TOKEN
+      selector:
+        dnsZones:
+          - "dev-software.pl"
+          - "*.dev-software.pl"
+          - "prod-1.dev-software.pl"
+          - "*.prod-1.dev-software.pl"
