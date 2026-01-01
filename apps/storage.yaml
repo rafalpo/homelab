@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/rafalpo/homelab.git
-    targetRevision: master
+    targetRevision: feature/jenkins
     path: storage
   destination:
     server: 'https://kubernetes.default.svc'
