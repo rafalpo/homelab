@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: saunamaster-toolbox-backend
+  namespace: saunamaster-toolbox-prod-1
+  labels:
+    app: saunamaster-toolbox-backend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+  selector:
+    app: saunamaster-toolbox-backend

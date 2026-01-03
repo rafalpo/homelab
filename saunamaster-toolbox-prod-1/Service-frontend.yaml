@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: saunamaster-toolbox-frontend
+  namespace: saunamaster-toolbox-prod-1
+  labels:
+    app: saunamaster-toolbox-frontend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
+  selector:
+    app: saunamaster-toolbox-frontend
