@@ -23,6 +23,9 @@ spec:
       containers:
       - name: backend
         image: nexus3.prod-1.dev-software.pl:5001/saunamaster_toolbox_backend:latest
+        envFrom:
+          - secretRef:
+            name: backend-secret
         ports:
         - containerPort: 8080
           name: http
