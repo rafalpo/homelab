@@ -23,6 +23,9 @@ spec:
       containers:
       - name: frontend
         image: nexus3.prod-1.dev-software.pl:5001/saunamaster_toolbox_frontend:latest
+        envFrom:
+          - secretRef:
+            name: frontend-secret
         ports:
         - containerPort: 3000
           name: http
