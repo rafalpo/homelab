@@ -1,0 +1,19 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: saunamaster-toolbox-ingress
+  namespace: saunamaster-toolbox-prod-1
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`saunamaster-toolbox.prod-1.dev-software.pl`)
+      kind: Rule
+      services:
+        - name: saunamaster-toolbox-frontend
+          port: 3000
+  tls:
+    secretName: prod-1-dev-software-prod-tls
