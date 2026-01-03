@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/rafalpo/homelab.git
-    targetRevision: feature/saunamaster-toolbox
+    targetRevision: master
     path: saunamaster-toolbox-prod-1
   destination:
     namespace: saunamaster-toolbox-prod-1
