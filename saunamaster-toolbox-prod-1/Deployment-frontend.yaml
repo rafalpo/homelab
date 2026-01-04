@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saunamaster-toolbox-frontend-prod-1
+  namespace: saunamaster-toolbox-prod-1
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+  labels:
+    app: saunamaster-toolbox-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: saunamaster-toolbox-frontend
+  template:
+    metadata:
+      labels:
+        app: saunamaster-toolbox-frontend
+    spec:
+      imagePullSecrets:
+        - name: nexus-secret
+      containers:
+      - name: frontend
+        image: nexus3.prod-1.dev-software.pl:5001/saunamaster_toolbox_frontend:latest
+        envFrom:
+          - secretRef:
+            name: frontend-secret
+        ports:
+        - containerPort: 3000
+          name: http
