@@ -25,7 +25,20 @@ spec:
         image: nexus3.prod-1.dev-software.pl:5001/saunamaster_toolbox_backend:2cb2796a
         envFrom:
           - secretRef:
-            name: backend-secret
+              name: backend-secret
         ports:
         - containerPort: 8080
           name: http
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
