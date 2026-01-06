@@ -22,7 +22,7 @@ spec:
         - name: nexus-secret
       containers:
       - name: backend
-        image: nexus3.prod-1.dev-software.pl:5001/saunamaster_toolbox_backend:2cb2796a
+        image: nexus3.prod-1.dev-software.pl:5001/saunamaster_toolbox_backend:76463f66
         envFrom:
           - secretRef:
               name: backend-secret
