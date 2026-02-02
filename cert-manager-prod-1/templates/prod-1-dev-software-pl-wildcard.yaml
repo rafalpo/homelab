@@ -9,6 +9,12 @@ metadata:
     avp.kubernetes.io/path: "secret/data/cert-manager/prod-1"
 spec:
   secretName: prod-1-dev-software-prod-tls
+  installOptions:
+    template:
+      metadata:
+        annotations:
+          reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+          reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: ""
   issuerRef:
     name: cert-manager-prod-1-letsencrypt-prod-issuer
     kind: Issuer
