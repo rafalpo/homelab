@@ -18,7 +18,7 @@ spec:
         cloudflare:
           email: "<CF_EMAIL>"
           apiTokenSecretRef:
-            name: cert-manager-prod-1-cloudflare-token-secret
+            name: cloudflare-token-secret
             key: CF_TOKEN
       selector:
         dnsZones:
