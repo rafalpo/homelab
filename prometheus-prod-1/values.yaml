@@ -1,0 +1,150 @@
+alertmanager:
+  enabled: false
+grafana:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/os: linux
+  admin:
+    existingSecret: prometheus-secrets
+    userKey:  GRAFANA_ADMIN_USERNAME
+    passwordKey: GRAFANA_ADMIN_PASSWORD
+prometheusOperator:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/os: linux
+kube-state-metrics:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/os: linux
+kubelet:
+  serviceMonitor:
+    enabled: true
+    interval: "120s"
+prometheus:
+  serviceAccount:
+    create: true
+    name: "prometheus-k8s"
+  prometheusSpec:
+    nodeSelector:
+      kubernetes.io/os: linux
+    retention: "30d"
+    serviceMonitorSelector:
+      matchExpressions:
+        - key: monitoring
+          operator: In
+          values:
+            - "enabled"
+            - "true"
+    serviceMonitorNamespaceSelector: {}
+prometheus-node-exporter:
+  enabled: true
+  prometheus:
+    monitor:
+      enabled: true
+      interval: "120s"
+extraManifests:
+  - apiVersion: external-secrets.io/v1
+    kind: ExternalSecret
+    metadata:
+      name: prometheus-external-secret
+      namespace: prometheus-prod-1
+      annotations:
+        argocd.argoproj.io/sync-wave: "0"
+    spec:
+      refreshInterval: "6h" 
+      secretStoreRef:
+        name: vault-secret-store
+        kind: ClusterSecretStore
+      target:
+        name: prometheus-secrets
+        creationPolicy: Owner
+      data:
+        - secretKey: GRAFANA_ADMIN_PASSWORD
+          remoteRef:
+            key: secret/data/prometheus/prod-1
+            property: GRAFANA_ADMIN_PASSWORD
+        - secretKey: GRAFANA_ADMIN_USERNAME
+          remoteRef:
+            key: secret/data/prometheus/prod-1
+            property: GRAFANA_ADMIN_USERNAME
+  - apiVersion: traefik.io/v1alpha1
+    kind: IngressRoute
+    metadata:
+      name: grafana-ingress
+      namespace: prometheus-prod-1
+      annotations:
+        kubernetes.io/ingress.class: traefik-external
+    spec:
+      entryPoints:
+        - websecure
+      routes:
+        - match: Host(`grafana.prod-1.dev-software.pl`)
+          kind: Rule
+          services:
+            - name: kube-prometheus-stack-grafana
+              port: http-web
+      tls:
+        secretName: cert-manager-prod-1-dev-software-prod-secret
+  - apiVersion: traefik.io/v1alpha1
+    kind: IngressRoute
+    metadata:
+      name: prometheus-ingress
+      namespace: prometheus-prod-1
+      annotations:
+        kubernetes.io/ingress.class: traefik-external
+    spec:
+      entryPoints:
+        - websecure
+      routes:
+        - match: Host(`prometheus.prod-1.dev-software.pl`)
+          kind: Rule
+          services:
+            - name: kube-prometheus-stack-prometheus
+              port: http-web
+      tls:
+        secretName: prod-1-dev-software-prod-tls
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: banana-pi-node-exporter
+      namespace: prometheus-prod-1
+      labels:
+        app: banana-pi-node-exporter
+        monitoring: "true"
+    spec:
+      ports:
+        - name: metrics
+          port: 9100
+          targetPort: 9100
+  - apiVersion: v1
+    kind: Endpoints
+    metadata:
+      name: banana-pi-node-exporter
+      namespace: prometheus-prod-1
+      labels:
+        monitoring: "true"
+    subsets:
+      - addresses:
+        - ip: 10.10.0.1
+        ports:
+          - name: metrics
+            port: 9100
+  - apiVersion: monitoring.coreos.com/v1
+    kind: ServiceMonitor
+    metadata:
+      name: banana-pi-node-exporter
+      namespace: prometheus-prod-1
+      labels:
+        monitoring: "true"
+        release: kube-prometheus-stack
+    spec:
+      selector:
+        matchLabels:
+          app: banana-pi-node-exporter
+      namespaceSelector:
+        matchNames:
+          - prometheus-prod-1
+      endpoints:
+      - port: metrics
+        path: /metrics
+        interval: 30s
