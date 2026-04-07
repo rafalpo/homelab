@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudflared-metrics
+  namespace: cloudflare-tunnel-prod-1
+  labels:
+    app: cloudflared
+spec:
+  ports:
+  - name: metrics
+    port: 2000
+    targetPort: 2000
+  selector:
+    app: cloudflared

@@ -4,4 +4,6 @@ kind: Kustomization
 namespace: cloudflare-tunnel-prod-1
 resources:
   - ExternalSecret-CF-Tunnel.yaml
+  - MetricsService.yaml
   - Deployment.yaml
+  - ServiceMonitor.yaml

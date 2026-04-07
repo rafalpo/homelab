@@ -1,0 +1,19 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cloudflare-tunnel-prod-1-monitor
+  namespace: cloudflare-tunnel-prod-1
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: cloudflared
+  namespaceSelector:
+    matchNames:
+      - cloudflare-tunnel-prod-1
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
