@@ -16,7 +16,7 @@ spec:
           reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
           reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: ""
   issuerRef:
-    name: cert-manager-prod-1-letsencrypt-prod-issuer
+    name: cert-manager-prod-1-zerossl-issuer
     kind: Issuer
   commonName: "*.prod-1.dev-software.pl"
   dnsNames:
