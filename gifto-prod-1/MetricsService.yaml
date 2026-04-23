@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gifto-metrics
+  namespace: gifto-prod-1
+  labels:
+    app: gifto
+spec:
+  ports:
+  - name: metrics
+    port: 3000
+    targetPort: 3000
+  selector:
+    app: gifto
