@@ -22,7 +22,7 @@ spec:
         - name: nexus-secret
       containers:
       - name: frontend
-        image: nexus3.prod-1.dev-software.pl:5001/gifto/gifto:b7f4cd2796f6fa3674d55e4269466038ed7b884c
+        image: nexus3.prod-1.dev-software.pl:5001/gifto/gifto:845892698e2452dae91acceb68f6bdb2009a33c7
         imagePullPolicy: Always
         envFrom:
           - secretRef:
