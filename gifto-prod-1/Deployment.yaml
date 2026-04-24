@@ -22,7 +22,7 @@ spec:
         - name: nexus-secret
       initContainers:
       - name: db-migration
-        image: nexus3.prod-1.dev-software.pl:5001/gifto/gifto:latest
+        image: nexus3.prod-1.dev-software.pl:5001/gifto/gifto:fccedc3066329f7671281794d343925b6c0c041f
         imagePullPolicy: Always
         envFrom:
           - secretRef:
@@ -33,7 +33,7 @@ spec:
           - "migrate"
       containers:
       - name: gifto
-        image: nexus3.prod-1.dev-software.pl:5001/gifto/gifto:latest
+        image: nexus3.prod-1.dev-software.pl:5001/gifto/gifto:fccedc3066329f7671281794d343925b6c0c041f
         imagePullPolicy: Always
         envFrom:
           - secretRef:
