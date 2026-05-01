@@ -20,22 +20,9 @@ spec:
     spec:
       imagePullSecrets:
         - name: nexus-secret
-      initContainers:
-      - name: db-migration
-        image: nexus3.prod-1.dev-software.pl:5001/gifto/gifto:0.1.1
-        imagePullPolicy: Always
-        securityContext:
-          runAsUser: 0
-        envFrom:
-          - secretRef:
-              name: gifto-secrets
-        command:
-          - "/bin/sh"
-          - "-c"
-          - "npm install drizzle-kit && npx drizzle-kit migrate"
       containers:
       - name: gifto
-        image: nexus3.prod-1.dev-software.pl:5001/gifto/gifto:0.1.1
+        image: nexus3.prod-1.dev-software.pl:5001/gifto/gifto:0.1.2
         imagePullPolicy: Always
         envFrom:
           - secretRef:
