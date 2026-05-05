@@ -6,15 +6,14 @@ metadata:
   namespace: cert-manager-prod-1
   annotations:
     argocd.argoproj.io/sync-wave: "10"
-    avp.kubernetes.io/path: "secret/data/cert-manager/prod-1"
 spec:
   secretName: prod-1-dev-software-prod-tls
-  installOptions:
-    template:
-      metadata:
-        annotations:
-          reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-          reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: ""
+  secretTemplate:
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "argocd-prod-1,gifto-prod-1,n8n-prod-1,prometheus-prod-1,saunamaster-toolbox-prod-1,traefik-prod-1,uptime-kuma-prod-1,vault-prod-1"
+      reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "argocd-prod-1,gifto-prod-1,n8n-prod-1,prometheus-prod-1,saunamaster-toolbox-prod-1,traefik-prod-1,uptime-kuma-prod-1,vault-prod-1"
   issuerRef:
     name: cert-manager-prod-1-letsencrypt-prod-issuer
     kind: Issuer

@@ -5,7 +5,7 @@ cert-manager:
       create: true
   crds:
     enabled: true
-    keep: true
+    keep: false
   installCRDs: true
   replicaCount: 1
   extraArgs:

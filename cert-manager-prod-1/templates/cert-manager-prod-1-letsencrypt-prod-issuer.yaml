@@ -6,11 +6,10 @@ metadata:
   namespace: cert-manager-prod-1
   annotations:
     argocd.argoproj.io/sync-wave: "5"
-    avp.kubernetes.io/path: "secret/data/cert-manager/prod-1"
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: "<CF_EMAIL>"
+    email: "rafal.podkonski@dev-software.pl"
     privateKeySecretRef:
       name: cert-manager-prod-1-letsencrypt-prod-issuer
     solvers:
