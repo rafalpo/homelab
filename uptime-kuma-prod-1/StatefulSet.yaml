@@ -11,6 +11,7 @@ spec:
     matchLabels:
       app: uptime-kuma
   replicas: 1
+  revisionHistoryLimit: 1
   serviceName: "uptime-kuma"
   template:
     metadata:

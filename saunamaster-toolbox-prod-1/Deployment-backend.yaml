@@ -10,6 +10,7 @@ metadata:
     app: saunamaster-toolbox-backend
 spec:
   replicas: 1
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: saunamaster-toolbox-backend
