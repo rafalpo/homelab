@@ -1,0 +1,35 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jenkins-prod-1
+  namespace: argocd-prod-1
+spec:
+  project: default
+  source:
+    repoURL: https://charts.jenkins.io
+    chart: jenkins
+    targetRevision: 5.8.115
+    helm:
+      valueFiles:
+        - $values/jenkins-prod-1/values.yaml
+  sources:
+    - repoURL: https://charts.jenkins.io
+      chart: jenkins
+      targetRevision: 5.8.115
+      helm:
+        valueFiles:
+          - $values/jenkins-prod-1/values.yaml
+    - repoURL: https://github.com/rafalpo/homelab.git
+      targetRevision: master
+      ref: values
+  destination:
+    namespace: jenkins-prod-1
+    server: 'https://kubernetes.default.svc'
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
