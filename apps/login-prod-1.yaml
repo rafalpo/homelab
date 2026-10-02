@@ -1,0 +1,35 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: login-prod-1
+  namespace: argocd-prod-1
+spec:
+  project: default
+  source:
+    repoURL: https://charts.goauthentik.io
+    chart: authentik
+    targetRevision: 2026.8.3
+    helm:
+      valueFiles:
+        - $values/login-prod-1/values.yaml
+  sources:
+    - repoURL: https://charts.goauthentik.io
+      chart: authentik
+      targetRevision: 2026.8.3
+      helm:
+        valueFiles:
+          - $values/login-prod-1/values.yaml
+    - repoURL: https://github.com/rafalpo/homelab.git
+      targetRevision: master
+      ref: values
+  destination:
+    namespace: login-prod-1
+    server: 'https://kubernetes.default.svc'
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

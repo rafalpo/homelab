@@ -1,0 +1,57 @@
+global:
+    envFrom:
+        - secretRef:
+              name: authentik-secrets
+
+authentik:
+    error_reporting:
+        enabled: false
+
+server:
+    ingress:
+        ingressClassName: traefik-prod-1
+        enabled: true
+        tls:
+            - secretName: prod-1-dev-software-prod-tls
+              hosts:
+                - login.prod-1.dev-software.pl
+        hosts:
+            - login.prod-1.dev-software.pl
+
+additionalObjects:
+    - apiVersion: external-secrets.io/v1
+      kind: ExternalSecret
+      metadata:
+        name: authentik-external-secret
+        namespace: login-prod-1
+        annotations:
+            argocd.argoproj.io/sync-wave: "-1"
+      spec:
+        refreshInterval: 6h
+        secretStoreRef:
+          name: vault-secret-store
+          kind: ClusterSecretStore
+        target:
+          name: authentik-secrets
+          creationPolicy: Owner
+        data:
+            - secretKey: AUTHENTIK_SECRET_KEY
+              remoteRef:
+                key: secret/data/login/prod-1
+                property: SECRET_KEY
+            - secretKey: AUTHENTIK_POSTGRESQL__HOST
+              remoteRef:
+                key: secret/data/login/prod-1
+                property: DB_HOST
+            - secretKey: AUTHENTIK_POSTGRESQL__NAME
+              remoteRef:
+                key: secret/data/login/prod-1
+                property: DB_NAME
+            - secretKey: AUTHENTIK_POSTGRESQL__USER
+              remoteRef:
+                key: secret/data/login/prod-1
+                property: DB_USER
+            - secretKey: AUTHENTIK_POSTGRESQL__PASSWORD
+              remoteRef:
+                key: secret/data/login/prod-1
+                property: DB_PASSWORD
