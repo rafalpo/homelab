@@ -15,6 +15,5 @@ spec:
     namespace: argocd-prod-1
   syncPolicy:
     automated:
-      enable: false
-      prune: false
-      selfHeal: false
+      prune: true
+      selfHeal: true
