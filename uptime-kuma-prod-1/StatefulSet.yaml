@@ -10,7 +10,7 @@ spec:
   selector:
     matchLabels:
       app: uptime-kuma
-  replicas: 1
+  replicas: 0
   revisionHistoryLimit: 1
   serviceName: "uptime-kuma"
   template:

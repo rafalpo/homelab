@@ -11,7 +11,7 @@ spec:
     matchLabels:
       app: postgres
   serviceName: "postgres"
-  replicas: 1
+  replicas: 0
   revisionHistoryLimit: 1
   template:
     metadata:
