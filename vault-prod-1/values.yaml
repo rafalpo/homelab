@@ -6,7 +6,7 @@ vault:
     
     ha:
       enabled: true
-      replicas: 0
+      replicas: 1
       raft:
         enabled: true
         setNodeId: true
