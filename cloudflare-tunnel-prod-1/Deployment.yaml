@@ -5,7 +5,7 @@ metadata:
   name: cloudflared-tunnel
   namespace: cloudflare-tunnel-prod-1
 spec:
-  replicas: 2
+  replicas: 0
   revisionHistoryLimit: 1
   selector:
     matchLabels:
